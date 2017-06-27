@@ -22,6 +22,9 @@ namespace Carnac.Logic.Models
         [DefaultValue("White")]
         public string FontColor { get; set; }
 
+        [DefaultValue(false)]
+        public bool AutoUpdate { get; set; }
+
 
         [DefaultValue(true)]
         public bool ShowMouseClicks { get; set; }
