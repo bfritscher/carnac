@@ -59,15 +59,19 @@ namespace Carnac
 
             MouseWatcher.OnMouseInput += (s, me) =>
             {
+                if (!keyShowView.IsVisible) return;
+                var msg = me.Message;
+                var needAct = msg == MouseMessages.WM_LBUTTONUP || msg == MouseMessages.WM_RBUTTONUP;
+                if (!needAct) { return; }
+
                 Dispatcher.Invoke(() =>
                 {
-                    if (!keyShowView.IsVisible) return;
                     keyShowViewModel.CursorPosition = keyShowView.PointFromScreen(new System.Windows.Point(me.Point.x, me.Point.y));
-                    if (me.Message == MouseMessages.WM_LBUTTONUP)
+                    if (msg == MouseMessages.WM_LBUTTONUP)
                     {
                         keyShowView.LeftClick();
                     }
-                    if (me.Message == MouseMessages.WM_RBUTTONUP)
+                    if (msg == MouseMessages.WM_RBUTTONUP)
                     {
                         keyShowView.RightClick();
                     }
