@@ -117,6 +117,7 @@ namespace Carnac
         {
             trayIcon.Dispose();
             carnac.Dispose();
+            MouseWatcher.Stop();
             ProcessUtilities.DestroyMutex();
 
             base.OnExit(e);
