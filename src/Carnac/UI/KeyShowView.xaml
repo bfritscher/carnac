@@ -55,140 +55,170 @@
                 </DrawingGroup>
             </DrawingBrush.Drawing>
         </DrawingBrush>
-    </Window.Resources>
+		<Storyboard x:Key="clickHighlighterStoryboard">
+			<DoubleAnimation From="{Binding DataContext.Settings.ClickStartScale, Source={x:Reference This}}" To="{Binding DataContext.Settings.ClickStopScale, Source={x:Reference This}}" Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)" Storyboard.TargetName="clickHighlighter">
+				<DoubleAnimation.EasingFunction>
+					<CircleEase EasingMode="EaseOut"/>
+				</DoubleAnimation.EasingFunction>
+			</DoubleAnimation>
+			<DoubleAnimation  From="{Binding DataContext.Settings.ClickStartScale, Source={x:Reference This}}" To="{Binding DataContext.Settings.ClickStopScale, Source={x:Reference This}}"  Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)" Storyboard.TargetName="clickHighlighter">
+				<DoubleAnimation.EasingFunction>
+					<CircleEase EasingMode="EaseOut"/>
+				</DoubleAnimation.EasingFunction>
+			</DoubleAnimation>
+			<DoubleAnimation  From="{Binding DataContext.Settings.ClickStartOpacity, Source={x:Reference This}}" To="{Binding DataContext.Settings.ClickStopOpacity, Source={x:Reference This}}" Storyboard.TargetProperty="Opacity" Storyboard.TargetName="clickHighlighter" FillBehavior="Stop">
+				<DoubleAnimation.EasingFunction>
+					<CircleEase EasingMode="EaseIn"/>
+				</DoubleAnimation.EasingFunction>
+			</DoubleAnimation>
+			<DoubleAnimation  From="{Binding DataContext.Settings.ClickStartBorder, Source={x:Reference This}}" To="{Binding DataContext.Settings.ClickStopBorder, Source={x:Reference This}}" Storyboard.TargetProperty="StrokeThickness" Storyboard.TargetName="clickHighlighter">
+				<DoubleAnimation.EasingFunction>
+					<CircleEase EasingMode="EaseOut"/>
+				</DoubleAnimation.EasingFunction>
+			</DoubleAnimation>
+		</Storyboard>
+	</Window.Resources>
+
+	<Grid>
+		<ListView Margin="{Binding Settings.Margins}" HorizontalAlignment="{Binding Settings.Alignment}"
+				VerticalAlignment="Stretch" ItemsSource="{Binding Source={StaticResource KeysViewSource}}"
+				Background="Transparent" Focusable="False" IsHitTestVisible="False" BorderBrush="Transparent"
+				BorderThickness="0" ScrollViewer.VerticalScrollBarVisibility="Hidden"
+				ScrollViewer.HorizontalScrollBarVisibility="Hidden">
+			<ListView.LayoutTransform>
+				<ScaleTransform ScaleY="{Binding Settings.ScaleTransform}" />
+			</ListView.LayoutTransform>
+			<ListView.ItemTemplate>
+				<DataTemplate>
+					<Border x:Name="Border" Margin="0, 0, 0, 3" HorizontalAlignment="Stretch"
+						Opacity="{Binding DataContext.Settings.ItemOpacity, Source={x:Reference This}}"
+						IsHitTestVisible="True" Focusable="True" BorderThickness="4" CornerRadius="15" Padding="3">
+						<Border.Background>
+							<SolidColorBrush Color="{Binding DataContext.Settings.ItemBackgroundColor, Source={x:Reference This}}" />
+						</Border.Background>
+						<Border.Style>
+							<Style>
+								<Style.Triggers>
+									<DataTrigger Value="True" Binding="{Binding IsDeleting, Mode=OneWay}">
+										<DataTrigger.EnterActions>
+											<BeginStoryboard>
+												<Storyboard>
+													<DoubleAnimation Storyboard.TargetProperty="Opacity" To="0"
+																	Duration="0:0:0.125" />
+												</Storyboard>
+											</BeginStoryboard>
+										</DataTrigger.EnterActions>
+									</DataTrigger>
+								</Style.Triggers>
+							</Style>
+						</Border.Style>
+						<Border.LayoutTransform>
+							<ScaleTransform ScaleY="{Binding DataContext.Settings.ScaleTransform, Source={x:Reference This}}" />
+						</Border.LayoutTransform>
+						<StackPanel Orientation="Horizontal">
+							<Image Margin="3" Width="20" Height="20"  Visibility="{Binding DataContext.Settings.ShowApplicationIcon,Source={x:Reference This},
+							Converter={StaticResource BooleanToVisibilityConverter}}" Source="{Binding ProcessIcon, Mode=OneWay}" />
+							<ListBox MaxWidth="{Binding DataContext.Settings.ItemMaxWidth, Source={x:Reference This}}"
+								HorizontalAlignment="Stretch" VerticalContentAlignment="Center" ItemsSource="{Binding Text, Mode=OneWay}"
+								FontWeight="Bold" Focusable="False" BorderBrush="{x:Null}"
+								ScrollViewer.HorizontalScrollBarVisibility="Disabled" IsHitTestVisible="False">
+								<ListBox.Background>
+									<SolidColorBrush Color="{Binding DataContext.Settings.ItemBackgroundColor, Source={x:Reference This}}" />
+								</ListBox.Background>
+								<ListBox.Foreground>
+									<SolidColorBrush Color="{Binding DataContext.Settings.FontColor, Source={x:Reference This}}" />
+								</ListBox.Foreground>
+								<ListBox.ItemsPanel>
+									<ItemsPanelTemplate>
+										<WrapPanel />
+									</ItemsPanelTemplate>
+								</ListBox.ItemsPanel>
+								<ListBox.ItemContainerStyle>
+									<Style TargetType="ListBoxItem">
+										<Setter Property="Padding" Value="0" />
+										<Setter Property="Margin" Value="0" />
+									</Style>
+								</ListBox.ItemContainerStyle>
+								<ListBox.ItemTemplate>
+									<DataTemplate>
+										<StackPanel Orientation="Horizontal">
+											<Border x:Name="KeyCapBorder" Margin="2" Visibility="Collapsed" CornerRadius="5"
+											Padding="2,5">
+												<Border.Background>
+													<SolidColorBrush Color="{Binding DataContext.Settings.FontColor, Source={x:Reference This}}" />
+												</Border.Background>
+												<StackPanel Orientation="Horizontal">
+													<Rectangle x:Name="icon" VerticalAlignment="Center" />
+													<TextBlock x:Name="KeyCap" Text="{Binding  }">
+														<TextBlock.Foreground>
+															<SolidColorBrush Color="{Binding DataContext.Settings.ItemBackgroundColor, Source={x:Reference This}}" />
+														</TextBlock.Foreground>
+													</TextBlock>
+												</StackPanel>
+											</Border>
 
 
-    <ListView Margin="{Binding Settings.Margins}" HorizontalAlignment="{Binding Settings.Alignment}"
-              VerticalAlignment="Stretch" ItemsSource="{Binding Source={StaticResource KeysViewSource}}"
-              Background="Transparent" Focusable="False" IsHitTestVisible="False" BorderBrush="Transparent"
-              BorderThickness="0" ScrollViewer.VerticalScrollBarVisibility="Hidden"
-              ScrollViewer.HorizontalScrollBarVisibility="Hidden">
-        <ListView.LayoutTransform>
-            <ScaleTransform ScaleY="{Binding Settings.ScaleTransform}" />
-        </ListView.LayoutTransform>
-        <ListView.ItemTemplate>
-            <DataTemplate>
-                <Border x:Name="Border" Margin="0, 0, 0, 3" HorizontalAlignment="Stretch"
-                        Opacity="{Binding DataContext.Settings.ItemOpacity, Source={x:Reference This}}"
-                        IsHitTestVisible="True" Focusable="True" BorderThickness="4" CornerRadius="15" Padding="3">
-                    <Border.Background>
-                        <SolidColorBrush Color="{Binding DataContext.Settings.ItemBackgroundColor, Source={x:Reference This}}" />
-                    </Border.Background>
-                    <Border.Style>
-                        <Style>
-                            <Style.Triggers>
-                                <DataTrigger Value="True" Binding="{Binding IsDeleting, Mode=OneWay}">
-                                    <DataTrigger.EnterActions>
-                                        <BeginStoryboard>
-                                            <Storyboard>
-                                                <DoubleAnimation Storyboard.TargetProperty="Opacity" To="0"
-                                                                 Duration="0:0:0.125" />
-                                            </Storyboard>
-                                        </BeginStoryboard>
-                                    </DataTrigger.EnterActions>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Border.Style>
-                    <Border.LayoutTransform>
-                        <ScaleTransform ScaleY="{Binding DataContext.Settings.ScaleTransform, Source={x:Reference This}}" />
-                    </Border.LayoutTransform>
-                    <StackPanel Orientation="Horizontal">
-                        <Image Margin="3" Width="20" Height="20"  Visibility="{Binding DataContext.Settings.ShowApplicationIcon,Source={x:Reference This},
-                            Converter={StaticResource BooleanToVisibilityConverter}}" Source="{Binding ProcessIcon, Mode=OneWay}" />
-                        <ListBox MaxWidth="{Binding DataContext.Settings.ItemMaxWidth, Source={x:Reference This}}"
-                             HorizontalAlignment="Stretch" VerticalContentAlignment="Center" ItemsSource="{Binding Text, Mode=OneWay}"
-                             FontWeight="Bold" Focusable="False" BorderBrush="{x:Null}"
-                             ScrollViewer.HorizontalScrollBarVisibility="Disabled" IsHitTestVisible="False">
-                        <ListBox.Background>
-                            <SolidColorBrush Color="{Binding DataContext.Settings.ItemBackgroundColor, Source={x:Reference This}}" />
-                        </ListBox.Background>
-                        <ListBox.Foreground>
-                            <SolidColorBrush Color="{Binding DataContext.Settings.FontColor, Source={x:Reference This}}" />
-                        </ListBox.Foreground>
-                        <ListBox.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <WrapPanel />
-                            </ItemsPanelTemplate>
-                        </ListBox.ItemsPanel>
-                        <ListBox.ItemContainerStyle>
-                            <Style TargetType="ListBoxItem">
-                                <Setter Property="Padding" Value="0" />
-                                <Setter Property="Margin" Value="0" />
-                            </Style>
-                        </ListBox.ItemContainerStyle>
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <Border x:Name="KeyCapBorder" Margin="2" Visibility="Collapsed" CornerRadius="5"
-                                            Padding="2,5">
-                                        <Border.Background>
-                                            <SolidColorBrush Color="{Binding DataContext.Settings.FontColor, Source={x:Reference This}}" />
-                                        </Border.Background>
-                                        <StackPanel Orientation="Horizontal">
-                                            <Rectangle x:Name="icon" VerticalAlignment="Center" />
-                                            <TextBlock x:Name="KeyCap" Text="{Binding  }">
-                                                <TextBlock.Foreground>
-                                                    <SolidColorBrush Color="{Binding DataContext.Settings.ItemBackgroundColor, Source={x:Reference This}}" />
-                                                </TextBlock.Foreground>
-                                            </TextBlock>
-                                        </StackPanel>
-                                    </Border>
+											<TextBlock x:Name="regular" Margin="0" VerticalAlignment="Center" Text="{Binding }"
+												Padding="0" />
+										</StackPanel>
+										<DataTemplate.Triggers>
+											<DataTrigger Value=" " Binding="{Binding .}">
+												<Setter TargetName="regular" Property="Control.MinWidth" Value="10" />
+											</DataTrigger>
+											<DataTrigger Value="Return" Binding="{Binding .}">
+												<Setter TargetName="KeyCapBorder" Property="Control.Visibility" Value="Visible" />
+												<Setter TargetName="KeyCap" Property="Text" Value="↵" />
+												<Setter TargetName="regular" Property="Control.Visibility" Value="Collapsed" />
+											</DataTrigger>
 
-                          
-                                    <TextBlock x:Name="regular" Margin="0" VerticalAlignment="Center" Text="{Binding }"
-                                               Padding="0" />
-                                </StackPanel>
-                                <DataTemplate.Triggers>
-                                    <DataTrigger Value=" " Binding="{Binding .}">
-                                        <Setter TargetName="regular" Property="Control.MinWidth" Value="10" />
-                                    </DataTrigger>
-                                    <DataTrigger Value="Return" Binding="{Binding .}">
-                                        <Setter TargetName="KeyCapBorder" Property="Control.Visibility" Value="Visible" />
-                                        <Setter TargetName="KeyCap" Property="Text" Value="↵" />
-                                        <Setter TargetName="regular" Property="Control.Visibility" Value="Collapsed" />
-                                    </DataTrigger>
+											<DataTrigger Value="Back" Binding="{Binding .}">
+												<Setter TargetName="KeyCapBorder" Property="Control.Visibility" Value="Visible" />
+												<Setter TargetName="regular" Property="Control.Visibility" Value="Collapsed" />
+											</DataTrigger>
 
-                                    <DataTrigger Value="Back" Binding="{Binding .}">
-                                        <Setter TargetName="KeyCapBorder" Property="Control.Visibility" Value="Visible" />
-                                        <Setter TargetName="regular" Property="Control.Visibility" Value="Collapsed" />
-                                    </DataTrigger>
+											<DataTrigger Value="Escape" Binding="{Binding .}">
+												<Setter TargetName="KeyCapBorder" Property="Control.Visibility" Value="Visible" />
+												<Setter TargetName="regular" Property="Control.Visibility" Value="Collapsed" />
+											</DataTrigger>
 
-                                    <DataTrigger Value="Escape" Binding="{Binding .}">
-                                        <Setter TargetName="KeyCapBorder" Property="Control.Visibility" Value="Visible" />
-                                        <Setter TargetName="regular" Property="Control.Visibility" Value="Collapsed" />
-                                    </DataTrigger>
+											<DataTrigger Value="Alt" Binding="{Binding .}">
+												<Setter TargetName="KeyCapBorder" Property="Control.Visibility" Value="Visible" />
+												<Setter TargetName="regular" Property="Control.Visibility" Value="Collapsed" />
+											</DataTrigger>
+											<DataTrigger Value="Ctrl" Binding="{Binding .}">
+												<Setter TargetName="KeyCapBorder" Property="Control.Visibility" Value="Visible" />
+												<Setter TargetName="regular" Property="Control.Visibility" Value="Collapsed" />
+											</DataTrigger>
 
-                                    <DataTrigger Value="Alt" Binding="{Binding .}">
-                                        <Setter TargetName="KeyCapBorder" Property="Control.Visibility" Value="Visible" />
-                                        <Setter TargetName="regular" Property="Control.Visibility" Value="Collapsed" />
-                                    </DataTrigger>
-                                    <DataTrigger Value="Ctrl" Binding="{Binding .}">
-                                        <Setter TargetName="KeyCapBorder" Property="Control.Visibility" Value="Visible" />
-                                        <Setter TargetName="regular" Property="Control.Visibility" Value="Collapsed" />
-                                    </DataTrigger>
+											<DataTrigger Value="Shift" Binding="{Binding .}">
+												<Setter TargetName="KeyCapBorder" Property="Control.Visibility" Value="Visible" />
+												<Setter TargetName="regular" Property="Control.Visibility" Value="Collapsed" />
+											</DataTrigger>
 
-                                    <DataTrigger Value="Shift" Binding="{Binding .}">
-                                        <Setter TargetName="KeyCapBorder" Property="Control.Visibility" Value="Visible" />
-                                        <Setter TargetName="regular" Property="Control.Visibility" Value="Collapsed" />
-                                    </DataTrigger>
-
-                                    <DataTrigger Value="Win" Binding="{Binding .}">
-                                        <Setter TargetName="regular" Property="Control.Visibility" Value="Collapsed" />
-                                        <Setter TargetName="KeyCapBorder" Property="Control.Visibility" Value="Visible" />
-                                        <Setter TargetName="KeyCap" Property="Control.Visibility" Value="Collapsed" />
-                                        <Setter TargetName="icon" Property="Rectangle.Fill"
-                                                Value="{StaticResource Layer1}" />
-                                        <Setter TargetName="icon" Property="Rectangle.Width" Value="50" />
-                                        <Setter TargetName="icon" Property="Rectangle.Height" Value="50" />
-                                    </DataTrigger>
-                                </DataTemplate.Triggers>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-                    </StackPanel>
-                </Border>
-            </DataTemplate>
-        </ListView.ItemTemplate>
-    </ListView>
+											<DataTrigger Value="Win" Binding="{Binding .}">
+												<Setter TargetName="regular" Property="Control.Visibility" Value="Collapsed" />
+												<Setter TargetName="KeyCapBorder" Property="Control.Visibility" Value="Visible" />
+												<Setter TargetName="KeyCap" Property="Control.Visibility" Value="Collapsed" />
+												<Setter TargetName="icon" Property="Rectangle.Fill"
+												Value="{StaticResource Layer1}" />
+												<Setter TargetName="icon" Property="Rectangle.Width" Value="50" />
+												<Setter TargetName="icon" Property="Rectangle.Height" Value="50" />
+											</DataTrigger>
+										</DataTemplate.Triggers>
+									</DataTemplate>
+								</ListBox.ItemTemplate>
+							</ListBox>
+						</StackPanel>
+					</Border>
+				</DataTemplate>
+			</ListView.ItemTemplate>
+		</ListView>
+		<Ellipse x:Name="clickHighlighter" Stroke="{Binding Settings.ClickColor}" HorizontalAlignment="Left" Height="20" Width="20" Margin="{Binding CursorMargins}" VerticalAlignment="Top" StrokeThickness="4" RenderTransformOrigin="0.5,0.5"  Opacity="0">
+			<Ellipse.RenderTransform>
+				<TransformGroup>
+					<ScaleTransform/>
+				</TransformGroup>
+			</Ellipse.RenderTransform>
+		</Ellipse>
+	</Grid>
 </Window>

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Reactive.Linq;
 using System.Windows;
 using Carnac.Logic;
@@ -9,6 +8,10 @@ using Carnac.UI;
 using Carnac.Utilities;
 using SettingsProviderNet;
 using Squirrel;
+using EventHook;
+using EventHook.Hooks;
+
+
 
 namespace Carnac
 {
@@ -33,9 +36,10 @@ namespace Carnac
             messageProvider = new MessageProvider(new ShortcutProvider(), keyProvider, settings);
         }
 
+
         protected override void OnStartup(StartupEventArgs e)
         {
-            // Check if there was instance before this. If there was-close the current one.  
+            // Check if there was instance before this. If there was-close the current one.
             if (ProcessUtilities.ThisProcessIsAlreadyRunning())
             {
                 ProcessUtilities.SetFocusToPreviousInstance("Carnac");
@@ -46,29 +50,71 @@ namespace Carnac
             trayIcon = new CarnacTrayIcon();
             trayIcon.OpenPreferences += TrayIconOnOpenPreferences;
             var keyShowViewModel = new KeyShowViewModel(settings);
+
             keyShowView = new KeyShowView(keyShowViewModel);
             keyShowView.Show();
 
             carnac = new KeysController(keyShowViewModel.Messages, messageProvider, new ConcurrencyService(), settingsProvider);
             carnac.Start();
 
-#if !DEBUG
-            Observable
-                .Timer(TimeSpan.FromMinutes(5))
-                .Subscribe(async x =>
+            MouseWatcher.OnMouseInput += (s, me) =>
+            {
+                if (!keyShowView.IsVisible) return;
+                var msg = me.Message;
+                var needAct = msg == MouseMessages.WM_LBUTTONUP || msg == MouseMessages.WM_RBUTTONUP;
+                if (!needAct) { return; }
+
+                Dispatcher.Invoke(() =>
                 {
-                    try
+                    keyShowViewModel.CursorPosition = keyShowView.PointFromScreen(new System.Windows.Point(me.Point.x, me.Point.y));
+                    if (msg == MouseMessages.WM_LBUTTONUP)
                     {
-                        using (var mgr = UpdateManager.GitHubUpdateManager(carnacUpdateUrl))
-                        {
-                            await mgr.Result.UpdateApp();
-                        }
-        }
-                    catch
+                        keyShowView.LeftClick();
+                    }
+                    if (msg == MouseMessages.WM_RBUTTONUP)
                     {
-                        // Do something useful with the exception
+                        keyShowView.RightClick();
                     }
                 });
+            };
+
+            if (settings.ShowMouseClicks)
+            {
+                MouseWatcher.Start();
+            }
+            settings.PropertyChanged += (s, se) => {
+                switch (se.PropertyName)
+                {
+                    case "ShowMouseClicks":
+                        if (this.settings.ShowMouseClicks) {
+                            MouseWatcher.Start();
+                        } else {
+                            MouseWatcher.Stop();
+                        }
+                        break;
+                }
+            };
+
+#if !DEBUG
+            if (settings.AutoUpdate)
+            {
+                Observable
+                    .Timer(TimeSpan.FromMinutes(5))
+                    .Subscribe(async x =>
+                    {
+                        try
+                        {
+                            using (var mgr = UpdateManager.GitHubUpdateManager(carnacUpdateUrl))
+                            {
+                                await mgr.Result.UpdateApp();
+                            }
+                        }
+                        catch
+                        {
+                            // Do something useful with the exception
+                        }
+                    });
+            }
 #endif
 
             base.OnStartup(e);
@@ -78,6 +124,7 @@ namespace Carnac
         {
             trayIcon.Dispose();
             carnac.Dispose();
+            MouseWatcher.Stop();
             ProcessUtilities.DestroyMutex();
 
             base.OnExit(e);

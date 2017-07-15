@@ -4,15 +4,20 @@ using System.Timers;
 using System.Windows;
 using System.Windows.Interop;
 using Carnac.Logic;
+using System.Windows.Media.Animation;
+using System.Windows.Shapes;
 
 namespace Carnac.UI
 {
     public partial class KeyShowView
     {
+        private Storyboard sb;
+
         public KeyShowView(KeyShowViewModel keyShowViewModel)
         {
             DataContext = keyShowViewModel;
             InitializeComponent();
+            keyShowViewModel.Settings.PropertyChanged += Settings_PropertyChanged;
         }
 
         protected override void OnSourceInitialized(EventArgs e)
@@ -20,8 +25,7 @@ namespace Carnac.UI
             base.OnSourceInitialized(e);
 
             var hwnd = new WindowInteropHelper(this).Handle;
-            Win32Methods.SetWindowExTransparent(hwnd);
-
+            Win32Methods.SetWindowExTransparentAndNotInWindowList(hwnd);
             var timer = new Timer(100);
             timer.Elapsed +=
                 (s, x) =>
@@ -33,7 +37,6 @@ namespace Carnac.UI
                 };
 
             timer.Start();
-
             var vm = ((KeyShowViewModel)DataContext);
             Left = vm.Settings.Left;
             vm.Settings.LeftChanged += SettingsLeftChanged;
@@ -83,7 +86,7 @@ namespace Carnac.UI
 
         private void WindowLoaded(object sender, RoutedEventArgs e)
         {
-            
+            sb = this.FindResource("clickHighlighterStoryboard") as Storyboard;
         }
 
         void SettingsLeftChanged(object sender, EventArgs e)
@@ -92,6 +95,36 @@ namespace Carnac.UI
             var vm = ((KeyShowViewModel)DataContext);
             Left = vm.Settings.Left;
             WindowState = WindowState.Maximized;
+        }
+
+        void Settings_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            var vm = ((KeyShowViewModel)DataContext);
+            switch (e.PropertyName)
+            {
+                case "ClickFadeDelay":                    
+                    Duration d = TimeSpan.FromMilliseconds(vm.Settings.ClickFadeDelay);
+                    foreach( DoubleAnimation da in sb.Children)
+                    {
+                        da.Duration = d;
+                    }
+                    break;
+            }
+        }
+
+        //TODO: fix transform to MVVM
+        internal void LeftClick()
+        {
+            var vm = ((KeyShowViewModel)DataContext);
+            vm.Settings.ClickColor = vm.Settings.LeftClickColor;
+            sb.Begin();
+        }
+
+        internal void RightClick()
+        {
+            var vm = ((KeyShowViewModel)DataContext);
+            vm.Settings.ClickColor = vm.Settings.RightClickColor;
+            sb.Begin();
         }
     }
 }
