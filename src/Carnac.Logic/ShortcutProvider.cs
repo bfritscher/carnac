@@ -48,6 +48,7 @@ namespace Carnac.Logic
                 return
                     new KeyPressDefinition
                         (keys.Value,
+                         System.IntPtr.Zero,
                          shiftPressed: combo.Contains("shift"),
                          controlPressed: combo.Contains("ctrl"),
                          altPressed: combo.Contains("alt"),

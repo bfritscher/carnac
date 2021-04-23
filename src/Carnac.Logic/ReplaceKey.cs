@@ -129,7 +129,7 @@ namespace Carnac.Logic
 
         // new implementation of sanitize to support locals
         // https://stackoverflow.com/questions/318777/c-sharp-how-to-translate-virtual-keycode-to-char
-        static public string KeyCodeToUnicode(Keys key, bool lowerOnly = false)
+        static public string KeyCodeToUnicode(Keys key, bool lowerOnly, IntPtr keyboardLayout)
         {
             byte[] keyboardState = new byte[255];
             if (!lowerOnly)
@@ -143,10 +143,9 @@ namespace Carnac.Logic
 
             uint virtualKeyCode = (uint)key;
             uint scanCode = MapVirtualKey(virtualKeyCode, 0);
-            IntPtr inputLocaleIdentifier = GetKeyboardLayout(0);
-
+            
             StringBuilder result = new StringBuilder();
-            ToUnicodeEx(virtualKeyCode, scanCode, keyboardState, result, (int)5, (uint)0, inputLocaleIdentifier);
+            ToUnicodeEx(virtualKeyCode, scanCode, keyboardState, result, (int)5, (uint)0, keyboardLayout);
 
             return result.ToString();
         }
@@ -158,18 +157,15 @@ namespace Carnac.Logic
         static extern uint MapVirtualKey(uint uCode, uint uMapType);
 
         [DllImport("user32.dll")]
-        static extern IntPtr GetKeyboardLayout(uint idThread);
-
-        [DllImport("user32.dll")]
         static extern int ToUnicodeEx(uint wVirtKey, uint wScanCode, byte[] lpKeyState, [Out, MarshalAs(UnmanagedType.LPWStr)] StringBuilder pwszBuff, int cchBuff, uint wFlags, IntPtr dwhkl);
 
-        public static string Sanitise(this Keys key)
+        public static string Sanitise(this Keys key, IntPtr keyboardLayout)
         {
             if (SpecialCases.ContainsKey(key))
             {
                 return SpecialCases[key];
             }
-            string result = KeyCodeToUnicode(key);
+            string result = KeyCodeToUnicode(key, false, keyboardLayout);
             if (result.Length > 0)
             {
                 return result;
@@ -177,13 +173,13 @@ namespace Carnac.Logic
             return key.ToString();
         }
 
-        public static string SanitiseLower(this Keys key)
+        public static string SanitiseLower(this Keys key, IntPtr keyboardLayout)
         {
             if (SpecialCases.ContainsKey(key))
             {
                 return SpecialCases[key];
             }
-            string result = KeyCodeToUnicode(key, true);
+            string result = KeyCodeToUnicode(key, true, keyboardLayout);
             if (result.Length > 0)
             {
                 return result;

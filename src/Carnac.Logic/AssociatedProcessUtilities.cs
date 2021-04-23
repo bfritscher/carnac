@@ -18,6 +18,9 @@ namespace Carnac.Logic
         [DllImport("user32.dll")]
         private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
 
+        [DllImport("user32.dll")]
+        static extern IntPtr GetKeyboardLayout(uint idThread);
+
         public static Process GetAssociatedProcess()
         {
             var handle = GetForegroundWindow();
@@ -40,5 +43,15 @@ namespace Carnac.Logic
                 return null;
             }
         }
+
+        public static IntPtr GetForegroundWindowKeyboardLayout()
+        {
+            var handle = GetForegroundWindow();
+            uint processId;
+            uint threadId = GetWindowThreadProcessId(new IntPtr(handle), out processId);
+            return GetKeyboardLayout(threadId);
+        }
+
+
     }
 }

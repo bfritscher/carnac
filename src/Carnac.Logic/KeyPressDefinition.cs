@@ -1,4 +1,5 @@
 using System.Windows.Forms;
+using System;
 
 namespace Carnac.Logic
 {
@@ -6,12 +7,14 @@ namespace Carnac.Logic
     {
         public KeyPressDefinition(
             Keys key,
+            IntPtr keyboardLayout,
             bool winkeyPressed = false,
             bool shiftPressed = false,
             bool altPressed = false,
             bool controlPressed = false)
         {
             Key = key;
+            KeyboardLayout = keyboardLayout;
             ControlPressed = controlPressed;
             AltPressed = altPressed;
             ShiftPressed = shiftPressed;
@@ -19,6 +22,7 @@ namespace Carnac.Logic
         }
 
         public Keys Key { get; private set; }
+        public IntPtr KeyboardLayout { get; private set; }
         public bool ControlPressed { get; private set; }
         public bool AltPressed { get; private set; }
         public bool ShiftPressed { get; private set; }

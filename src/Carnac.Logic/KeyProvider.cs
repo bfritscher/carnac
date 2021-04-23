@@ -156,21 +156,23 @@ namespace Carnac.Logic
                 return null;
             }
 
+            IntPtr keyboardLayout = AssociatedProcessUtilities.GetForegroundWindowKeyboardLayout();
+
             var isLetter = interceptKeyEventArgs.IsLetter();
-            var inputs = ToInputs(isLetter, winKeyPressed, interceptKeyEventArgs).ToArray();
+            var inputs = ToInputs(isLetter, winKeyPressed, interceptKeyEventArgs, keyboardLayout).ToArray();
             try
             {
                 string processFileName = process.MainModule.FileName;
                 ImageSource image = IconUtilities.GetProcessIconAsImageSource(processFileName);
-                return new KeyPress(new ProcessInfo(process.ProcessName, image), interceptKeyEventArgs, winKeyPressed, inputs);
+                return new KeyPress(new ProcessInfo(process.ProcessName, image), interceptKeyEventArgs, keyboardLayout, winKeyPressed, inputs);
             }
             catch (Exception)
             {
-                return new KeyPress(new ProcessInfo(process.ProcessName), interceptKeyEventArgs, winKeyPressed, inputs); ;
+                return new KeyPress(new ProcessInfo(process.ProcessName), interceptKeyEventArgs, keyboardLayout, winKeyPressed, inputs); ;
             }
         }
 
-        static IEnumerable<string> ToInputs(bool isLetter, bool isWinKeyPressed, InterceptKeyEventArgs interceptKeyEventArgs)
+        static IEnumerable<string> ToInputs(bool isLetter, bool isWinKeyPressed, InterceptKeyEventArgs interceptKeyEventArgs, IntPtr keyboardLayout)
         {
             var controlPressed = interceptKeyEventArgs.ControlPressed;
             var altPressed = interceptKeyEventArgs.AltPressed;
@@ -198,11 +200,11 @@ namespace Carnac.Logic
                 if (shiftPressed)
                     yield return "Shift";
 
-                yield return interceptKeyEventArgs.Key.SanitiseLower();
+                yield return interceptKeyEventArgs.Key.SanitiseLower(keyboardLayout);
             }
             else
             {
-                yield return interceptKeyEventArgs.Key.Sanitise();
+                yield return interceptKeyEventArgs.Key.Sanitise(keyboardLayout);
             }
         }
     }

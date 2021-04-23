@@ -1,13 +1,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using Carnac.Logic.KeyMonitor;
+using System;
 
 namespace Carnac.Logic.Models
 {
     public sealed class KeyPress : KeyPressDefinition
     {
-        public KeyPress(ProcessInfo process, InterceptKeyEventArgs interceptKeyEventArgs, bool winkeyPressed, IEnumerable<string> input) :
-            base(interceptKeyEventArgs.Key, winkeyPressed, interceptKeyEventArgs.ShiftPressed, interceptKeyEventArgs.AltPressed, interceptKeyEventArgs.ControlPressed)
+        public KeyPress(ProcessInfo process, InterceptKeyEventArgs interceptKeyEventArgs, IntPtr keyboardLayout, bool winkeyPressed, IEnumerable<string> input) :
+            base(interceptKeyEventArgs.Key, keyboardLayout, winkeyPressed, interceptKeyEventArgs.ShiftPressed, interceptKeyEventArgs.AltPressed, interceptKeyEventArgs.ControlPressed)
         {
             Process = process;
             InterceptKeyEventArgs = interceptKeyEventArgs;
